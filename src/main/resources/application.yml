@@ -30,9 +30,9 @@ spring:
 logging:
   config: classpath:config/logback-spring.xml
   level:
-    #???????
+    #指定包日志级别
     cn.hy.flow.dao: info
-    #??myabtis????
+    #开启myabtis语句打印
     main.blog.mapper: trace
 
 mybatis:
