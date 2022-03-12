@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * @Package: cn.wikitang.onlinemusic
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Date: 2021/12/8 22:58
  * @Description:
  */
+@EnableSwagger2
 @SpringBootApplication
 @MapperScan(basePackages = {"cn.wikitang.*.dao"})
 public class DevApplication {

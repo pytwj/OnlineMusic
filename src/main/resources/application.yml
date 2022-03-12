@@ -7,8 +7,8 @@ spring:
   application:
     name: OnlineMusic
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/basisdata?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=GMT%2B8
-    username: wiki
+    url: jdbc:mysql://127.0.0.1:3306/tp_music?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
     password: 123456
 
   servlet:
