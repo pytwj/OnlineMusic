@@ -1513,6 +1513,21 @@ public class DateUtil {
         return null == obj ? true : (obj instanceof String && "".equals(obj.toString().trim())) ? true : false;
     }
 
+    // 判断当前时间是不是周末
+    public static boolean todayIsWeekend(String dateTime){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date today = null;
+        try {
+            today = dateFormat.parse(dateTime);
+        } catch (ParseException e) {
+            logger.error("解析日期异常");
+            today = new Date();
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        return calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)== Calendar.SUNDAY;
+    }
+
 
 }
 
