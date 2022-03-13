@@ -1,6 +1,5 @@
 package cn.wikitang.onlinemusic;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @EnableSwagger2
 @SpringBootApplication
-@MapperScan(basePackages = {"cn.wikitang.*.dao"})
+//@MapperScan(basePackages = {"cn.wikitang.*.dao"})
 public class DevApplication {
 
     private final static Logger logger = LoggerFactory.getLogger(DevApplication.class);
