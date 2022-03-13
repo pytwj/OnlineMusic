@@ -1,6 +1,9 @@
 package cn.wikitang.onlinemusic.controller;
 
+import cn.wikitang.onlinemusic.common.utils.DTOBuilder;
+import cn.wikitang.onlinemusic.common.utils.ValidatorUtils;
 import cn.wikitang.onlinemusic.dao.AdminMapper;
+import cn.wikitang.onlinemusic.dto.LoginDTO;
 import cn.wikitang.onlinemusic.entity.Admin;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -36,8 +39,10 @@ public class AdminController {
     public Object loginStatus(HttpServletRequest req, HttpSession session) {
         JSONObject jsonObject = new JSONObject();
 
-        String name = req.getParameter("name");
-        String password = req.getParameter("password");
+        LoginDTO loginDTO = (LoginDTO) DTOBuilder.getDTO(req, LoginDTO.class);
+        ValidatorUtils.validateDto(loginDTO);
+        String name = loginDTO.getName();
+        String password = loginDTO.getPassword();
 
         LambdaQueryWrapper<Admin> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Admin::getName, name)

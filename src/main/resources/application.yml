@@ -36,3 +36,13 @@ logging:
     cn.wikitang.onlinemusic.dao: info
     #开启myabtis语句打印
     main.blog.mapper: trace
+
+knife4j:
+#  开启生产环境屏蔽
+#  production: true
+#  增强功能需要通过配置yml配置文件开启增强
+  enable: true
+  basic:
+    enable: true
+    username: admin
+    password: 123456
