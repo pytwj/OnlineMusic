@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.27</version>
+			<version>8.0.28</version>
 		</dependency>
 
 		<dependency>
@@ -146,12 +146,24 @@
 
 		</plugins>
 		<resources>
-			<resource>
-				<directory>src/main/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
+				<resource>
+					<directory>src/main/java</directory>
+					<includes>
+						<include>**/*.yml</include>
+						<include>**/*.properties</include>
+						<include>**/*.xml</include>
+					</includes>
+					<filtering>false</filtering>
+				</resource>
+				<resource>
+					<directory>src/main/resources</directory>
+					<includes>
+						<include>**/*.yml</include>
+						<include>**/*.properties</include>
+						<include>**/*.xml</include>
+					</includes>
+					<filtering>false</filtering>
+				</resource>
 		</resources>
 	</build>
 
