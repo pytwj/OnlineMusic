@@ -38,6 +38,17 @@ public class DateUtil {
         return getDateMilliFormat(cal);
     }
 
+    public static Date dateFormate(String dateStr,String pattern){
+        Date date = null;
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        try {
+            date = sdf.parse(dateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
     /**
      * 得到格式为yyyy-MM-dd HH:mm:ss,SSS的时间字符串
      * @param cal Calendar

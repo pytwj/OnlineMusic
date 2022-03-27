@@ -1,8 +1,28 @@
 package cn.wikitang.onlinemusic.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import cn.wikitang.onlinemusic.common.utils.DTOBuilder;
+import cn.wikitang.onlinemusic.common.utils.DateUtil;
+import cn.wikitang.onlinemusic.common.utils.UserLoginToken;
+import cn.wikitang.onlinemusic.common.utils.ValidatorUtils;
+import cn.wikitang.onlinemusic.constant.Constants;
+import cn.wikitang.onlinemusic.dao.SingerMapper;
+import cn.wikitang.onlinemusic.dto.SingerDTO;
+import cn.wikitang.onlinemusic.entity.Singer;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * <p>
@@ -12,8 +32,167 @@ import org.springframework.web.bind.annotation.RestController;
  * @author twj
  * @since 2021-12-08
  */
+@Api(tags = "歌手管理")
 @RestController
+@Controller
 @RequestMapping("/singer")
 public class SingerController {
+
+    @Autowired
+    private SingerMapper singerMapper;
+
+    public static final JSONObject JSON_OBJECT = new JSONObject();
+
+    @UserLoginToken
+    @ApiOperation("添加歌手")
+    @ResponseBody
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public Object addSinger(HttpServletRequest request, HttpSession session) {
+        JSONObject jsonObject = new JSONObject();
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        Singer singer = new Singer();
+        Date birth = DateUtil.dateFormate(singerDTO.getBirth(),"yyyy-MM-dd");
+        singer.setBirth(birth);
+        singer.setSex(Integer.valueOf(singerDTO.getSex()));
+        BeanUtils.copyProperties(singerDTO, singer);
+        boolean flag = singerMapper.insert(singer) > 0;
+        if (flag) {
+            jsonObject.put(Constants.CODE, 1);
+            jsonObject.put(Constants.MSG, "添加成功");
+        } else {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "添加失败");
+        }
+        return jsonObject;
+    }
+
+    @UserLoginToken
+    @ApiOperation("修改歌手")
+    @ResponseBody
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public Object updateSinger(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        Singer singer = new Singer();
+        singer.setId(Integer.valueOf(singerDTO.getId()));
+        Date birth = DateUtil.dateFormate(singerDTO.getBirth(), Constants.YYYYMMDD);
+        singer.setBirth(birth);
+        singer.setSex(Integer.valueOf(singerDTO.getSex()));
+        BeanUtils.copyProperties(singerDTO, singer);
+        boolean flag = singerMapper.updateById(singer) > 0;
+        if (flag) {
+            JSON_OBJECT.put(Constants.CODE, 1);
+            JSON_OBJECT.put(Constants.MSG, "修改成功");
+        } else {
+            JSON_OBJECT.put(Constants.CODE, 0);
+            JSON_OBJECT.put(Constants.MSG, "修改失败");
+        }
+        return JSON_OBJECT;
+    }
+
+    @UserLoginToken
+    @ApiOperation("删除歌手")
+    @ResponseBody
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public Object deleteSinger(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        boolean flag = singerMapper.deleteById(Integer.valueOf(singerDTO.getId())) > 0;
+        if (flag) {
+            JSON_OBJECT.put(Constants.CODE, 1);
+            JSON_OBJECT.put(Constants.MSG, "删除成功");
+        } else {
+            JSON_OBJECT.put(Constants.CODE, 0);
+            JSON_OBJECT.put(Constants.MSG, "删除失败");
+        }
+        return JSON_OBJECT;
+    }
+
+    @UserLoginToken
+    @ApiOperation("根据ID查询歌手")
+    @ResponseBody
+    @RequestMapping(value = "/selectByPrimaryKey", method = RequestMethod.GET)
+    public Object selectByPrimaryKey(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        return singerMapper.selectById(Integer.valueOf(singerDTO.getId()));
+    }
+
+    @UserLoginToken
+    @ApiOperation("查询所有歌手")
+    @ResponseBody
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public Object allSinger() {
+        return singerMapper.selectList(null);
+    }
+
+    @UserLoginToken
+    @ApiOperation("根据歌手名模糊查询")
+    @ResponseBody
+    @RequestMapping(value = "/singerOfName", method = RequestMethod.GET)
+    public Object singerOfName(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        LambdaQueryWrapper<Singer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Singer::getName, singerDTO.getName());
+        return singerMapper.selectOne(queryWrapper);
+    }
+
+    @UserLoginToken
+    @ApiOperation("根据性别模糊查询")
+    @ResponseBody
+    @RequestMapping(value = "/singerOfSex", method = RequestMethod.GET)
+    public Object singerOfSex(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        LambdaQueryWrapper<Singer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Singer::getName, Integer.valueOf(singerDTO.getName()));
+        return singerMapper.selectList(queryWrapper);
+    }
+
+//    @UserLoginToken
+    @ApiOperation("更新歌手头像")
+    @ResponseBody
+    @RequestMapping(value = "/updateSingerPic", method = RequestMethod.POST)
+    public Object updateSingerPic(@RequestParam("file") MultipartFile avatarPic, @RequestParam("id") Integer id) {
+        if (avatarPic.isEmpty()) {
+            JSON_OBJECT.put(Constants.CODE, 0);
+            JSON_OBJECT.put(Constants.MSG, "更新失败");
+        }
+//        时间戳 + 文件名 防止上传相同名字的文件被覆盖
+        String fileName = System.currentTimeMillis() + "_" + avatarPic.getOriginalFilename();
+        String filePath = Constants.SINGER_PIC_PATH;
+        File file = new File(filePath);
+//        判断存放目录是否存在
+        if (!file.exists()) {
+//            创建目录
+            file.mkdir();
+        }
+        File saveFile = new File(filePath + fileName);
+//        存储的路径
+        String storePath = "/img/singerPic/" + fileName;
+        try {
+            avatarPic.transferTo(saveFile);
+            Singer singer = new Singer();
+            singer.setId(id);
+            singer.setPic(storePath);
+            boolean flag = singerMapper.updateById(singer) > 0;
+            if (flag) {
+                JSON_OBJECT.put(Constants.CODE, 1);
+                JSON_OBJECT.put(Constants.MSG, "更新成功");
+                JSON_OBJECT.put("pic", storePath);
+            } else {
+                JSON_OBJECT.put(Constants.CODE, 0);
+                JSON_OBJECT.put(Constants.MSG, "更新失败");
+            }
+        } catch (IOException e) {
+            JSON_OBJECT.put(Constants.CODE, 0);
+            JSON_OBJECT.put(Constants.MSG, "更新失败" + e.getMessage());
+            e.printStackTrace();
+        }
+        return JSON_OBJECT;
+    }
+
 
 }

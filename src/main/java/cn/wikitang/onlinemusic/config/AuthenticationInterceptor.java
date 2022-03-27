@@ -31,8 +31,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if ("OPTIONS".equals(request.getMethod())){
+            return true;
+        }
 //        从请求头获取token
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
 //        如果不是映射到方法直接通过
         if (!(handler instanceof HandlerMethod)) {
             return true;
@@ -52,16 +55,17 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (userLoginToken.required()) {
 //                执行认证
                 if (token == null) {
+                    response.setStatus(401);
                     throw new RuntimeException("无token，请重新登录");
                 }
 //                获取token的id
                 String userId = null;
-                int id = Integer.parseInt(userId);
                 try {
                     userId = JWT.decode(token).getAudience().get(0);
                 } catch (JWTDecodeException j) {
                     throw new RuntimeException("401");
                 }
+                int id = Integer.parseInt(userId);
                 Admin admin = adminService.getById(id);
                 if (admin == null){
                     throw new RuntimeException("用户不存在，请重新登录");
@@ -71,6 +75,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 try {
                     jwtVerifier.verify(token);
                 } catch (JWTVerificationException e) {
+                    response.setStatus(401);
                     throw new RuntimeException("401");
                 }
                 return true;

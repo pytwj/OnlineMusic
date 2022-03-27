@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -13,6 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @Date: 2021/12/8 22:58
  * @Description:
  */
+@CrossOrigin
 @EnableSwagger2
 @SpringBootApplication
 //@MapperScan(basePackages = {"cn.wikitang.*.dao"})
