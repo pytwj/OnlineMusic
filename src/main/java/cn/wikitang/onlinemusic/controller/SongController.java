@@ -287,6 +287,18 @@ public class SongController {
         return null;
     }
 
+    @UserLoginToken
+    @ApiOperation("查询所有歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/allSong", method = RequestMethod.GET)
+    public Object allSong(HttpServletRequest request) {
+        List<Song> songInfoList = songMapper.selectList(null);
+        if (CollectionUtil.isNotEmpty(songInfoList)){
+            return songInfoList;
+        }
+        return null;
+    }
+
 
 
 }
