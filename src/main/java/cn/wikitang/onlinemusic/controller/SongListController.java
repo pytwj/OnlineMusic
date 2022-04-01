@@ -46,7 +46,6 @@ public class SongListController {
         ValidatorUtils.validateDto(songListDTO);
         SongList songList = new SongList();
         BeanUtils.copyProperties(songListDTO, songList);
-        songList.setId(Integer.valueOf(songListDTO.getId()));
         boolean flag = songListMapper.insert(songList) > 0;
         if (flag) {
             jsonObject.put(Constants.CODE, 1);
@@ -104,7 +103,7 @@ public class SongListController {
     @UserLoginToken
     @ApiOperation("查询所有歌单")
     @ResponseBody
-    @RequestMapping(value = "/all", method = RequestMethod.POST)
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
     public Object allSongList(HttpServletRequest request) {
         return songListMapper.selectList(null);
     }

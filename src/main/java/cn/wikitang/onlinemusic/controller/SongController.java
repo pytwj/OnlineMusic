@@ -255,5 +255,38 @@ public class SongController {
         return jsonObject;
     }
 
+    @UserLoginToken
+    @ApiOperation("根据歌曲ID查询歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/getBySongId", method = RequestMethod.GET)
+    public Object getBySongId(HttpServletRequest request) {
+        SongDTO songDTO = (SongDTO) DTOBuilder.getDTO(request, SongDTO.class);
+        ValidatorUtils.validateDto(songDTO);
+        Integer id = Integer.valueOf(songDTO.getId());
+        Song songInfo = songMapper.selectById(id);
+        if (songInfo != null){
+            return songInfo;
+        }
+        return null;
+    }
+
+
+    @UserLoginToken
+    @ApiOperation("根据歌曲名查询歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/getBySongName", method = RequestMethod.GET)
+    public Object getBySongName(HttpServletRequest request) {
+        SongDTO songDTO = (SongDTO) DTOBuilder.getDTO(request, SongDTO.class);
+        ValidatorUtils.validateDto(songDTO);
+        LambdaQueryWrapper<Song> songQueryWrapper = new LambdaQueryWrapper<>();
+        songQueryWrapper.like(Song::getName,songDTO.getName());
+        List<Song> songInfoList = songMapper.selectList(songQueryWrapper);
+        if (CollectionUtil.isNotEmpty(songInfoList)){
+            return songInfoList;
+        }
+        return null;
+    }
+
+
 
 }
