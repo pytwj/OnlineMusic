@@ -108,6 +108,13 @@ public class SongListController {
         return songListMapper.selectList(null);
     }
 
+    @ApiOperation("客户端查询所有歌单")
+    @ResponseBody
+    @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
+    public Object allForClient(HttpServletRequest request) {
+        return songListMapper.selectList(null);
+    }
+
     @UserLoginToken
     @ApiOperation("根据标题查询歌单")
     @ResponseBody
@@ -188,6 +195,17 @@ public class SongListController {
             e.printStackTrace();
         }
         return jsonObject;
+    }
+
+    @ApiOperation("根据ID查询歌单信息")
+    @ResponseBody
+    @RequestMapping(value = "/songListOfId", method = RequestMethod.GET)
+    public Object songListOfId(HttpServletRequest request) {
+        SongListDTO songListDTO = (SongListDTO) DTOBuilder.getDTO(request, SongListDTO.class);
+        ValidatorUtils.validateDto(songListDTO);
+        LambdaQueryWrapper<SongList> idQueryWrapper = new LambdaQueryWrapper<>();
+        idQueryWrapper.eq(SongList::getId, songListDTO.getId());
+        return songListMapper.selectList(idQueryWrapper);
     }
 
 

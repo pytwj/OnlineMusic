@@ -86,6 +86,22 @@ public class ListSongController {
         return null;
     }
 
+    @ApiOperation("根据歌单ID查询歌单")
+    @ResponseBody
+    @RequestMapping(value = "/getByListSongForCli", method = RequestMethod.GET)
+    public Object getByListSongForCli(HttpServletRequest request) {
+        ListSongDTO listSongDTO = (ListSongDTO) DTOBuilder.getDTO(request, ListSongDTO.class);
+        ValidatorUtils.validateDto(listSongDTO);
+        Integer songListId = Integer.parseInt(listSongDTO.getSongListId());
+        LambdaQueryWrapper<ListSong> songListQueryWrapper = new LambdaQueryWrapper<>();
+        songListQueryWrapper.eq(ListSong::getSongListId, songListId);
+        List<ListSong> songList = listSongMapper.selectList(songListQueryWrapper);
+        if (CollectionUtil.isNotEmpty(songList)){
+            return songList;
+        }
+        return null;
+    }
+
     @UserLoginToken
     @ApiOperation("修改歌单信息")
     @ResponseBody

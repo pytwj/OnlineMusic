@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -58,13 +60,70 @@ public class ConsumerController {
             jsonObject.put(Constants.MSG, "密码不能为空！");
             throw new ApiException("密码不能为空！");
         }
-        LambdaQueryWrapper<Consumer> emailQueryWrapper = new LambdaQueryWrapper<>();
-        emailQueryWrapper.eq(Consumer::getEmail, consumerDTO.getEmail());
-        boolean isOnlyEmail = consumerMapper.selectCount(emailQueryWrapper) > 0;
-        if (isOnlyEmail) {
+        List<Consumer> consumerList = consumerMapper.selectList(null);
+        List<String> emailList = consumerList.stream().map(Consumer::getEmail).collect(Collectors.toList());
+        List<String> userNameList = consumerList.stream().map(Consumer::getUsername).collect(Collectors.toList());
+        boolean isUniqueEmail = emailList.contains(consumerDTO.getEmail());
+        boolean isUniqueUserName = userNameList.contains(consumerDTO.getUsername());
+        if (isUniqueEmail) {
             jsonObject.put(Constants.CODE, 0);
             jsonObject.put(Constants.MSG, "邮箱已被注册过，请核查！");
             throw new ApiException("邮箱已被注册过，请核查！");
+        }
+        if (isUniqueUserName) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "用户名已被注册过，请核查！");
+            throw new ApiException("用户名已被注册过，请核查！");
+        }
+        Date birth = DateUtil.dateFormate(consumerDTO.getBirth(), "yyyy-MM-dd");
+        Consumer consumer = new Consumer();
+        BeanUtils.copyProperties(consumerDTO, consumer);
+        consumer.setBirth(birth);
+        consumer.setSex(Integer.parseInt(consumerDTO.getSex()));
+        consumer.setCreateTime(new Date());
+        consumer.setUpdateTime(new Date());
+        boolean flag = consumerMapper.insert(consumer) > 0;
+        if (flag) {
+            jsonObject.put(Constants.CODE, 1);
+            jsonObject.put(Constants.MSG, "添加成功");
+        } else {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "添加失败");
+        }
+        return jsonObject;
+    }
+
+    @ApiOperation("添加用户去校验")
+    @ResponseBody
+    @RequestMapping(value = "/addForCli", method = RequestMethod.POST)
+    public Object addForCli(HttpServletRequest request) {
+        JSONObject jsonObject = new JSONObject();
+        ConsumerDTO consumerDTO = (ConsumerDTO) DTOBuilder.getDTO(request, ConsumerDTO.class);
+        ValidatorUtils.validateDto(consumerDTO);
+        if (StringUtils.isEmpty(consumerDTO.getUsername())) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "用户名不能为空！");
+            throw new ApiException("用户名不能为空！");
+        }
+        if (StringUtils.isEmpty(consumerDTO.getPassword())) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "密码不能为空！");
+            throw new ApiException("密码不能为空！");
+        }
+        List<Consumer> consumerList = consumerMapper.selectList(null);
+        List<String> emailList = consumerList.stream().map(Consumer::getEmail).collect(Collectors.toList());
+        List<String> userNameList = consumerList.stream().map(Consumer::getUsername).collect(Collectors.toList());
+        boolean isUniqueEmail = emailList.contains(consumerDTO.getEmail());
+        boolean isUniqueUserName = userNameList.contains(consumerDTO.getUsername());
+        if (isUniqueEmail) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "邮箱已被注册过，请核查！");
+            throw new ApiException("邮箱已被注册过，请核查！");
+        }
+        if (isUniqueUserName) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "用户名已被注册过，请核查！");
+            throw new ApiException("用户名已被注册过，请核查！");
         }
         Date birth = DateUtil.dateFormate(consumerDTO.getBirth(), "yyyy-MM-dd");
         Consumer consumer = new Consumer();
@@ -204,6 +263,27 @@ public class ConsumerController {
         return jsonObject;
     }
 
+    @ApiOperation("登录")
+    @ResponseBody
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public Object login(HttpServletRequest request) {
+        JSONObject jsonObject = new JSONObject();
+        ConsumerDTO consumerDTO = (ConsumerDTO) DTOBuilder.getDTO(request, ConsumerDTO.class);
+        ValidatorUtils.validateDto(consumerDTO);
+        LambdaQueryWrapper<Consumer> consumerQueryWrapper = new LambdaQueryWrapper<>();
+        consumerQueryWrapper.eq(Consumer::getPassword,consumerDTO.getPassword())
+                .eq(Consumer::getUsername,consumerDTO.getUsername());
+        Consumer consumer = consumerMapper.selectOne(consumerQueryWrapper);
+        if (consumer != null){
+            jsonObject.put(Constants.CODE, 1);
+            jsonObject.put(Constants.MSG, "登录成功");
+            jsonObject.put("userMsg", consumerMapper.selectById(consumer.getId()));
+        } else {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "登录失败");
+        }
+        return jsonObject;
+    }
 
 
 

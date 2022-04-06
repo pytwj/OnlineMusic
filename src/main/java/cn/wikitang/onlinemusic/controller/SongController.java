@@ -270,6 +270,19 @@ public class SongController {
         return null;
     }
 
+    @ApiOperation("根据歌曲ID查询歌曲(客户端)")
+    @ResponseBody
+    @RequestMapping(value = "/getBySongIdForCli", method = RequestMethod.GET)
+    public Object getBySongIdForCli(HttpServletRequest request) {
+        SongDTO songDTO = (SongDTO) DTOBuilder.getDTO(request, SongDTO.class);
+        ValidatorUtils.validateDto(songDTO);
+        Integer id = Integer.valueOf(songDTO.getId());
+        Song songInfo = songMapper.selectById(id);
+        if (songInfo != null){
+            return songInfo;
+        }
+        return null;
+    }
 
     @UserLoginToken
     @ApiOperation("根据歌曲名查询歌曲")
@@ -287,11 +300,37 @@ public class SongController {
         return null;
     }
 
+    @ApiOperation("根据歌曲名查询歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/getBySongNameForCli", method = RequestMethod.GET)
+    public Object getBySongNameForCli(HttpServletRequest request) {
+        SongDTO songDTO = (SongDTO) DTOBuilder.getDTO(request, SongDTO.class);
+        ValidatorUtils.validateDto(songDTO);
+        LambdaQueryWrapper<Song> songQueryWrapper = new LambdaQueryWrapper<>();
+        songQueryWrapper.like(Song::getName,songDTO.getName());
+        List<Song> songInfoList = songMapper.selectList(songQueryWrapper);
+        if (CollectionUtil.isNotEmpty(songInfoList)){
+            return songInfoList;
+        }
+        return null;
+    }
+
     @UserLoginToken
     @ApiOperation("查询所有歌曲")
     @ResponseBody
     @RequestMapping(value = "/allSong", method = RequestMethod.GET)
     public Object allSong(HttpServletRequest request) {
+        List<Song> songInfoList = songMapper.selectList(null);
+        if (CollectionUtil.isNotEmpty(songInfoList)){
+            return songInfoList;
+        }
+        return null;
+    }
+
+    @ApiOperation("客户端查询所有歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/allSongForClient", method = RequestMethod.GET)
+    public Object allSongForClient(HttpServletRequest request) {
         List<Song> songInfoList = songMapper.selectList(null);
         if (CollectionUtil.isNotEmpty(songInfoList)){
             return songInfoList;

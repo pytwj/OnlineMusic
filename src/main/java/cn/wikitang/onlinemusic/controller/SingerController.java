@@ -1,13 +1,16 @@
 package cn.wikitang.onlinemusic.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.wikitang.onlinemusic.common.utils.DTOBuilder;
 import cn.wikitang.onlinemusic.common.utils.DateUtil;
 import cn.wikitang.onlinemusic.common.utils.UserLoginToken;
 import cn.wikitang.onlinemusic.common.utils.ValidatorUtils;
 import cn.wikitang.onlinemusic.constant.Constants;
 import cn.wikitang.onlinemusic.dao.SingerMapper;
+import cn.wikitang.onlinemusic.dao.SongMapper;
 import cn.wikitang.onlinemusic.dto.SingerDTO;
 import cn.wikitang.onlinemusic.entity.Singer;
+import cn.wikitang.onlinemusic.entity.Song;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -40,6 +44,8 @@ public class SingerController {
 
     @Autowired
     private SingerMapper singerMapper;
+    @Autowired
+    private SongMapper songMapper;
 
     public static final JSONObject JSON_OBJECT = new JSONObject();
 
@@ -127,6 +133,13 @@ public class SingerController {
         return singerMapper.selectList(null);
     }
 
+    @ApiOperation("客户端查询所有歌手")
+    @ResponseBody
+    @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
+    public Object allForClient() {
+        return singerMapper.selectList(null);
+    }
+
     @UserLoginToken
     @ApiOperation("根据歌手名模糊查询")
     @ResponseBody
@@ -195,4 +208,24 @@ public class SingerController {
     }
 
 
+    @UserLoginToken
+    @ApiOperation("根据歌手名获取歌手ID再获取歌曲")
+    @ResponseBody
+    @RequestMapping(value = "/singerIdGetSong", method = RequestMethod.GET)
+    public Object singerIdGetSong(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        LambdaQueryWrapper<Singer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Singer::getName, singerDTO.getName());
+        Singer singer = singerMapper.selectOne(queryWrapper);
+        if (singer != null) {
+            LambdaQueryWrapper<Song> songQueryWrapper = new LambdaQueryWrapper<>();
+            songQueryWrapper.eq(Song::getSingerId,singer.getId());
+            List<Song> songList = songMapper.selectList(songQueryWrapper);
+            if (CollectionUtil.isNotEmpty(songList)){
+                return songList;
+            }
+        }
+        return null;
+    }
 }
