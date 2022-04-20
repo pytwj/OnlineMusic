@@ -179,6 +179,45 @@ public class ConsumerController {
         return jsonObject;
     }
 
+    @ApiOperation("客户端修改用户信息")
+    @ResponseBody
+    @RequestMapping(value = "/updateForCli", method = RequestMethod.POST)
+    public Object updateConsumerForCli(HttpServletRequest request) {
+        JSONObject jsonObject = new JSONObject();
+        ConsumerDTO consumerDTO = (ConsumerDTO) DTOBuilder.getDTO(request, ConsumerDTO.class);
+        ValidatorUtils.validateDto(consumerDTO);
+        if(StringUtils.isEmpty(consumerDTO.getEmail())){
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "邮箱不能为空，请核查！");
+            throw new ApiException("邮箱不能为空，请核查！");
+        }
+        LambdaQueryWrapper<Consumer> emailQueryWrapper = new LambdaQueryWrapper<>();
+        emailQueryWrapper.eq(Consumer::getEmail, consumerDTO.getEmail())
+                .ne(Consumer::getId, Integer.parseInt(consumerDTO.getId()));
+        boolean isOnlyEmail = consumerMapper.selectCount(emailQueryWrapper) > 0;
+        if (isOnlyEmail) {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "邮箱已被注册过，请核查！");
+            throw new ApiException("邮箱已被注册过，请核查！");
+        }
+        Date birth = DateUtil.dateFormate(consumerDTO.getBirth(), "yyyy-MM-dd");
+        Consumer consumer = new Consumer();
+        BeanUtils.copyProperties(consumerDTO, consumer);
+        consumer.setId(Integer.parseInt(consumerDTO.getId()));
+        consumer.setBirth(birth);
+        consumer.setSex(Integer.parseInt(consumerDTO.getSex()));
+        consumer.setUpdateTime(new Date());
+        boolean flag = consumerMapper.updateById(consumer) > 0;
+        if (flag) {
+            jsonObject.put(Constants.CODE, 1);
+            jsonObject.put(Constants.MSG, "修改成功");
+        } else {
+            jsonObject.put(Constants.CODE, 0);
+            jsonObject.put(Constants.MSG, "修改失败");
+        }
+        return jsonObject;
+    }
+
     @UserLoginToken
     @ApiOperation("删除用户信息")
     @ResponseBody
@@ -198,7 +237,7 @@ public class ConsumerController {
         return jsonObject;
     }
 
-    @UserLoginToken
+//    @UserLoginToken
     @ApiOperation("根据主键查询用户信息")
     @ResponseBody
     @RequestMapping(value = "/selectByPrimaryKey", method = RequestMethod.GET)

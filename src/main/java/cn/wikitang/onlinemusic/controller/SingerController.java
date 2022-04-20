@@ -125,6 +125,15 @@ public class SingerController {
         return singerMapper.selectById(Integer.valueOf(singerDTO.getId()));
     }
 
+    @ApiOperation("客户端根据ID查询歌手")
+    @ResponseBody
+    @RequestMapping(value = "/selectByPrimaryKeyForCli", method = RequestMethod.GET)
+    public Object selectByPrimaryKeyForCli(HttpServletRequest request) {
+        SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
+        ValidatorUtils.validateDto(singerDTO);
+        return singerMapper.selectById(Integer.valueOf(singerDTO.getId()));
+    }
+
     @UserLoginToken
     @ApiOperation("查询所有歌手")
     @ResponseBody
@@ -152,16 +161,20 @@ public class SingerController {
         return singerMapper.selectOne(queryWrapper);
     }
 
-    @UserLoginToken
-    @ApiOperation("根据性别模糊查询")
+//    @UserLoginToken
+    @ApiOperation("根据性别查询")
     @ResponseBody
     @RequestMapping(value = "/singerOfSex", method = RequestMethod.GET)
     public Object singerOfSex(HttpServletRequest request) {
         SingerDTO singerDTO = (SingerDTO) DTOBuilder.getDTO(request, SingerDTO.class);
         ValidatorUtils.validateDto(singerDTO);
         LambdaQueryWrapper<Singer> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(Singer::getName, Integer.valueOf(singerDTO.getName()));
-        return singerMapper.selectList(queryWrapper);
+        queryWrapper.eq(Singer::getSex, Integer.valueOf(singerDTO.getSex()));
+        List<Singer> singerList = singerMapper.selectList(queryWrapper);
+        if (CollectionUtil.isNotEmpty(singerList)) {
+            return singerList;
+        }
+        return null;
     }
 
 //    @UserLoginToken

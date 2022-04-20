@@ -48,8 +48,10 @@ public class ListSongController {
         ValidatorUtils.validateDto(listSongDTO);
         ListSong listSong = new ListSong();
         Integer songId = Integer.valueOf(listSongDTO.getSongId());
+        Integer songListId = Integer.valueOf(listSongDTO.getSongListId());
         LambdaQueryWrapper<ListSong> songIdQueryWrapper = new LambdaQueryWrapper<>();
-        songIdQueryWrapper.eq(ListSong::getSongId, songId);
+        songIdQueryWrapper.eq(ListSong::getSongId, songId)
+                .eq(ListSong::getSongListId, songListId);
         ListSong listSongList = listSongMapper.selectOne(songIdQueryWrapper);
         if (listSongList != null) {
             jsonObject.put(Constants.CODE, 0);
@@ -57,7 +59,7 @@ public class ListSongController {
             throw new ApiException("请不要添加重复歌曲，请核查！");
         }
         listSong.setSongId(songId);
-        listSong.setSongListId(Integer.valueOf(listSongDTO.getSongListId()));
+        listSong.setSongListId(songListId);
         boolean flag = listSongMapper.insert(listSong) > 0;
         if (flag) {
             jsonObject.put(Constants.CODE, 1);
@@ -86,7 +88,7 @@ public class ListSongController {
         return null;
     }
 
-    @ApiOperation("根据歌单ID查询歌单")
+    @ApiOperation("客户端根据歌单ID查询歌单")
     @ResponseBody
     @RequestMapping(value = "/getByListSongForCli", method = RequestMethod.GET)
     public Object getByListSongForCli(HttpServletRequest request) {

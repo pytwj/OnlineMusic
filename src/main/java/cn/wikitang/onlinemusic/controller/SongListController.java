@@ -1,5 +1,6 @@
 package cn.wikitang.onlinemusic.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.wikitang.onlinemusic.common.utils.DTOBuilder;
 import cn.wikitang.onlinemusic.common.utils.UserLoginToken;
 import cn.wikitang.onlinemusic.common.utils.ValidatorUtils;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * <p>
@@ -128,7 +130,7 @@ public class SongListController {
     }
 
 
-    @UserLoginToken
+//    @UserLoginToken
     @ApiOperation("根据标题模糊查询")
     @ResponseBody
     @RequestMapping(value = "/likeTitle", method = RequestMethod.GET)
@@ -136,11 +138,15 @@ public class SongListController {
         SongListDTO songListDTO = (SongListDTO) DTOBuilder.getDTO(request, SongListDTO.class);
         ValidatorUtils.validateDto(songListDTO);
         LambdaQueryWrapper<SongList> titleQueryWrapper = new LambdaQueryWrapper<>();
-        titleQueryWrapper.eq(SongList::getTitle, songListDTO.getTitle());
-        return songListMapper.selectList(titleQueryWrapper);
+        titleQueryWrapper.like(SongList::getTitle, songListDTO.getTitle());
+        List<SongList> songList = songListMapper.selectList(titleQueryWrapper);
+        if (CollectionUtil.isNotEmpty(songList)){
+            return songList;
+        }
+        return null;
     }
 
-    @UserLoginToken
+//    @UserLoginToken
     @ApiOperation("根据风格模糊查询")
     @ResponseBody
     @RequestMapping(value = "/likeType", method = RequestMethod.GET)
@@ -148,8 +154,12 @@ public class SongListController {
         SongListDTO songListDTO = (SongListDTO) DTOBuilder.getDTO(request, SongListDTO.class);
         ValidatorUtils.validateDto(songListDTO);
         LambdaQueryWrapper<SongList> titleQueryWrapper = new LambdaQueryWrapper<>();
-        titleQueryWrapper.eq(SongList::getStyle, songListDTO.getStyle());
-        return songListMapper.selectList(titleQueryWrapper);
+        titleQueryWrapper.like(SongList::getStyle, songListDTO.getStyle());
+        List<SongList> songList = songListMapper.selectList(titleQueryWrapper);
+        if (CollectionUtil.isNotEmpty(songList)) {
+            return songList;
+        }
+        return null;
     }
 
 
