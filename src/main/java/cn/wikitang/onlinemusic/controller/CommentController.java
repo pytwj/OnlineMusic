@@ -6,6 +6,7 @@ import cn.wikitang.onlinemusic.common.utils.ValidatorUtils;
 import cn.wikitang.onlinemusic.constant.Constants;
 import cn.wikitang.onlinemusic.dao.CommentMapper;
 import cn.wikitang.onlinemusic.dto.CommentDTO;
+import cn.wikitang.onlinemusic.dto.CommentWithCustomerDTO;
 import cn.wikitang.onlinemusic.entity.Comment;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -147,9 +148,7 @@ public class CommentController {
         CommentDTO commentDTO = (CommentDTO) DTOBuilder.getDTO(request, CommentDTO.class);
         ValidatorUtils.validateDto(commentDTO);
         Integer songId = Integer.parseInt(commentDTO.getSongId());
-        LambdaQueryWrapper<Comment> commentQueryWrapper = new LambdaQueryWrapper<>();
-        commentQueryWrapper.eq(Comment::getSongId, songId);
-        List<Comment> commentList = commentMapper.selectList(commentQueryWrapper);
+        List<CommentWithCustomerDTO> commentList = commentMapper.getCommentWithUserInfo(songId);
         if (CollectionUtil.isNotEmpty(commentList)){
             return commentList;
         }

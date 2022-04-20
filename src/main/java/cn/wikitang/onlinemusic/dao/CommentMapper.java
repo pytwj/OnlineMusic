@@ -1,8 +1,12 @@
 package cn.wikitang.onlinemusic.dao;
 
+import cn.wikitang.onlinemusic.dto.CommentWithCustomerDTO;
 import cn.wikitang.onlinemusic.entity.Comment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +19,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentMapper extends BaseMapper<Comment> {
 
+    @Select("select * from comment a left join consumer b on a.user_id = b.id where a.song_id = #{songId}")
+    List<CommentWithCustomerDTO> getCommentWithUserInfo(Integer songId);
 }
