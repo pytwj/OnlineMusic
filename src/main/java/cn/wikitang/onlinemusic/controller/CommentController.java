@@ -9,7 +9,6 @@ import cn.wikitang.onlinemusic.dto.CommentDTO;
 import cn.wikitang.onlinemusic.dto.CommentWithCustomerDTO;
 import cn.wikitang.onlinemusic.entity.Comment;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -162,9 +161,7 @@ public class CommentController {
         CommentDTO commentDTO = (CommentDTO) DTOBuilder.getDTO(request, CommentDTO.class);
         ValidatorUtils.validateDto(commentDTO);
         Integer songListId = Integer.parseInt(commentDTO.getSongListId());
-        LambdaQueryWrapper<Comment> commentQueryWrapper = new LambdaQueryWrapper<>();
-        commentQueryWrapper.eq(Comment::getSongListId, songListId);
-        List<Comment> commentList = commentMapper.selectList(commentQueryWrapper);
+        List<CommentWithCustomerDTO> commentList = commentMapper.getCommentWithUserInfoBySongListId(songListId);
         if (CollectionUtil.isNotEmpty(commentList)){
             return commentList;
         }
