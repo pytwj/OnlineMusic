@@ -146,7 +146,18 @@ public class SingerController {
     @ResponseBody
     @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
     public Object allForClient() {
-        return singerMapper.selectList(null);
+//        总记录数
+        Integer count = singerMapper.selectCount(null);
+//        随机开始位置
+        Integer randomCount = (int) (Math.random() * count);
+//        保证能展示10条数据
+        if (randomCount > count-10) {
+            randomCount = count -10;
+        }
+        LambdaQueryWrapper<Singer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByAsc(Singer::getId);
+        queryWrapper.last("limit " + String.valueOf(randomCount) + ",10");
+        return singerMapper.selectList(queryWrapper);
     }
 
     @UserLoginToken

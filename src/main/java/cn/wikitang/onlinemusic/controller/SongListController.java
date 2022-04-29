@@ -114,7 +114,18 @@ public class SongListController {
     @ResponseBody
     @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
     public Object allForClient(HttpServletRequest request) {
-        return songListMapper.selectList(null);
+//        总记录数
+        Integer count = songListMapper.selectCount(null);
+//        随机起始位置
+        Integer randomCount = (int) (Math.random() * count);
+//        保证能展示10条数据
+        if (randomCount > count-10) {
+            randomCount = count -10;
+        }
+        LambdaQueryWrapper<SongList> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByAsc(SongList::getId);
+        queryWrapper.last("limit " + String.valueOf(randomCount)+ ",10");
+        return songListMapper.selectList(queryWrapper);
     }
 
     @UserLoginToken
