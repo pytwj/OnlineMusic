@@ -110,7 +110,7 @@ public class SongListController {
         return songListMapper.selectList(null);
     }
 
-    @ApiOperation("客户端查询所有歌单")
+    @ApiOperation("客户端随机查询十条歌单")
     @ResponseBody
     @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
     public Object allForClient(HttpServletRequest request) {
@@ -126,6 +126,13 @@ public class SongListController {
         queryWrapper.orderByAsc(SongList::getId);
         queryWrapper.last("limit " + String.valueOf(randomCount)+ ",10");
         return songListMapper.selectList(queryWrapper);
+    }
+
+    @ApiOperation("客户端查询所有歌单")
+    @ResponseBody
+    @RequestMapping(value = "/toAll", method = RequestMethod.GET)
+    public Object allSongListNew(HttpServletRequest request) {
+        return songListMapper.selectList(null);
     }
 
     @UserLoginToken

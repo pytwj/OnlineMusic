@@ -142,7 +142,7 @@ public class SingerController {
         return singerMapper.selectList(null);
     }
 
-    @ApiOperation("客户端查询所有歌手")
+    @ApiOperation("客户端查询随机十条歌手")
     @ResponseBody
     @RequestMapping(value = "/allForClient", method = RequestMethod.GET)
     public Object allForClient() {
@@ -158,6 +158,13 @@ public class SingerController {
         queryWrapper.orderByAsc(Singer::getId);
         queryWrapper.last("limit " + String.valueOf(randomCount) + ",10");
         return singerMapper.selectList(queryWrapper);
+    }
+
+    @ApiOperation("查询所有歌手")
+    @ResponseBody
+    @RequestMapping(value = "/toAll", method = RequestMethod.GET)
+    public Object allSingerNew() {
+        return singerMapper.selectList(null);
     }
 
     @UserLoginToken
